@@ -1,4 +1,4 @@
-# whatsapp-stats-checker
+# WhatsApp Stats Checker
 It gives how many messages has each person has sent in a Whatsapp groupchat so you can identify who the spammer in your groupchat is.
 
 ## How does this work?
