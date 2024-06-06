@@ -37,7 +37,7 @@ Make sure you have Python installed on your system. This script is compatible wi
 
 4. Run the script:
     ```bash
-    python whatsapp_chat_analyzer.py
+    main.py
     ```
 5. The script will output a dictionary where the keys are usernames and the values are the number of messages sent by each user.
 
