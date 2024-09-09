@@ -1,7 +1,6 @@
 import re
 
-
-with open("your-file-path", "r", encoding="utf-8") as filePath:
+with open("_chat.txt", "r", encoding="utf-8") as filePath:
     userDictionary = {}
     for line in filePath:
         m = re.search('](.+?):', line)
