@@ -11,6 +11,7 @@
   "dependencies": {
     "formidable": "^3.5.2",
     "fs": "^0.0.1-security",
+    "multer": "^1.4.5-lts.1",
     "next": "15.0.4",
     "path": "^0.12.7",
     "react": "^19.0.0",

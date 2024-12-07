@@ -1,54 +1,61 @@
-import formidable from 'formidable';
+import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
-import os from 'os';
 
 export const config = {
   api: {
-    bodyParser: false, // Disable built-in body parser to handle file uploads
+    bodyParser: false, // Disable Next.js's built-in body parser
   },
 };
 
+// Configure multer for handling file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const tempDir = path.join(process.cwd(), 'temp-uploads');
+      fs.mkdir(tempDir, { recursive: true })
+        .then(() => cb(null, tempDir))
+        .catch((err) => cb(err));
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + '-' + file.originalname); // Unique file name
+    },
+  }),
+});
+
+// Wrap multer in a Promise to work with Next.js API routes
+const multerMiddleware = (req, res, next) => {
+  const handler = upload.single('file'); // Expecting 'file' as the field name
+  handler(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err);
+      res.status(400).json({ error: 'File upload failed' });
+    } else {
+      next();
+    }
+  });
+};
+
+// Custom handler for the file processing
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Create a temporary directory for uploads
-  const uploadDir = path.join(os.tmpdir(), 'uploads');
+  await new Promise((resolve, reject) => {
+    multerMiddleware(req, res, (err) => (err ? reject(err) : resolve()));
+  });
+
   try {
-    // Ensure the directory exists
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const form = formidable({
-      uploadDir, // Set the upload directory
-      keepExtensions: true, // Preserve file extensions
-      multiples: false, // Allow only a single file
-    });
-
-    const { fields, files } = await new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve({ fields, files });
-      });
-    });
-
-    console.log('Fields received:', fields);
-    console.log('Files received:', files);
-
-    const device = fields.device;
-    const uploadedFile = files.file;
+    const device = req.body.device; // 'device' will come as part of the request body
+    const uploadedFile = req.file;
 
     if (!uploadedFile) {
       console.error('No file received.');
-      return res.status(400).json({ error: 'No file received. Check field name.' });
-    }
-    if (!uploadedFile.filepath) {
-      console.error('Filepath is missing.');
-      return res.status(400).json({ error: 'Filepath is missing from uploaded file.' });
+      return res.status(400).json({ error: 'No file received' });
     }
 
-    const filePath = uploadedFile.filepath;
+    const filePath = uploadedFile.path;
 
     // Read and process the uploaded file
     const chatData = await fs.readFile(filePath, 'utf-8');
@@ -65,12 +72,12 @@ export default async function handler(req, res) {
       }
     });
 
-    // Delete the file after processing
+    // Delete the uploaded file after processing
     await fs.unlink(filePath);
 
     res.status(200).json(userDictionary);
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error processing file:', error);
     res.status(500).json({ error: 'Error processing file' });
   }
-};
+}
