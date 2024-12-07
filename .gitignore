@@ -1,2 +1,4 @@
-_chat.txt
-WhatsApp Chat with We❤️.txt
+node_modules/
+.next/
+__pycache__/
+temp-chat.txt
