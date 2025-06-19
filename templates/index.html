@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Whatsapp Stats Checker</title>
+</head>
+<body>
+  <h1>Whatsapp Stats Checker</h1>
+
+
+
+  <div>
+
+      <section id="instructions">
+        <h2>📤 Export Your WhatsApp Group Chat</h2>
+        <div class="step"><strong>Android:</strong> Group chat → ⋮ → More → Export chat → select text → send/save file</div>
+        <div class="step"><strong>iPhone:</strong> Group info → Export Chat → choose text → share/save file</div>
+        <p>Then upload the exported .txt file above and hit <em>Check stats</em>.</p>
+  </section>
+    <form id="chatForm">
+      <div class="form-group">
+        <label for="chatFile">Upload the file</label>
+        <input type="file" id="chatFile" required />
+      </div>
+
+      <div class="form-group">
+        <label for="deviceType">Select your OS</label>
+        <select id="deviceType" required>
+          <option value="a">Android</option>
+          <option value="i">iOS</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <button type="submit">Check stats</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="output"></div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
